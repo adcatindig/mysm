@@ -41,9 +41,13 @@
     .phone .header,.phone .home-head{background-position:0 -40px;background-color:#0a2fe6}
     .hero-bg img{margin-top:-40px}
   }
+  @supports (-webkit-touch-callout:none){   /* iOS (Safari + home-screen app): pin the app to the real screen edges so it fills the home-bar area exactly; 100dvh can fall short */
+    @media (max-width:500px){ html,body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none} .phone{position:fixed;top:0;right:0;bottom:0;left:0;width:auto;height:auto} }
+  }
   /* PWA / app build: cap the app at 440px wide, centred, on tablets and desktops */
   .phone{max-width:440px;margin:0 auto;position:relative;overflow:hidden}
   @media (min-width:441px){html,body{background:#eef1f6 !important}.phone{box-shadow:0 0 0 1px rgba(0,0,0,.06),0 12px 40px rgba(20,40,120,.12)}}
+  @supports (-webkit-touch-callout:none){html,body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none}.phone{position:fixed;top:0;right:0;bottom:0;left:0;width:auto;height:auto;margin:0 auto}}
   @media (max-width:380px){
     .art-wrap{transform:scale(.86);transform-origin:top right}
   }
