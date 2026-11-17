@@ -169,13 +169,21 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
 
   /* See all view */
   .sa{background:#fff;display:flex;flex-direction:column}
+  .sb .sa-head h3{font:500 16px/1.25 var(--hn)}
+  .sb{z-index:47}.sb .sa-head{border-bottom:0;padding-bottom:0}
+  .sb .sb-field{margin:12px 20px 4px;flex:none}
+  .sb-body{flex:1;overflow-y:auto;padding:12px 20px calc(40px + var(--sab));scrollbar-width:none}
+  .sb-body::-webkit-scrollbar{display:none}
+  .sb-body .sr-sec{margin:0 0 8px}.sb-body .sr-sec .sec-head{padding:8px 0}
+  .sb-empty{padding:48px 12px;text-align:center;color:var(--muted);font:400 14px/1.5 var(--hn)}
   .sa-head{padding:calc(var(--sat) + 10px) 20px 12px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #eef0f5}
   .sa-head .back{width:40px;height:40px}
   .sa-head h3{font:700 20px/1.1 var(--dm);color:var(--ink-2)}
   .sa-head small{display:block;font:400 12px/1.3 var(--hn);color:var(--muted);margin-top:2px}
   .sa-body{flex:1;overflow-y:auto;padding:16px 20px 40px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px 11px;align-content:start;scrollbar-width:none}
   .sa-body::-webkit-scrollbar{display:none}
-  #flOv.mall-set .fl-r .chip,#sdOv.mall-set .pc .chip,#sdOv.mall-set .sd-st .chip{display:none}
+  #flOv.mall-set .fl-r .chip,#sdOv.mall-set .pc .chip,#sdOv.mall-set .sd-st .chip,#sbOv.mall-set .pc .chip{display:none}
+  #sbOv.no-price .pc .pr{max-height:0;opacity:0;margin-top:0;overflow:hidden}#sbOv.no-price .pc .nm{margin-top:8px}
   .sa-body .card{width:auto;min-width:0}.sa-body .card .meta{min-width:0}.sa-body .card .pname{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sa-body .card .ph{width:100%;height:auto;aspect-ratio:1}
   .sa-foot{grid-column:1/-1;text-align:center;font:400 12px/1.4 var(--hn);color:var(--muted);padding-top:4px}
@@ -327,7 +335,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .use-btn:disabled{opacity:.45}
   #savedOv[data-mode=on] #turnOnBtn,#savedOv:not([data-mode=on]) .cur,#savedOv:not([data-mode=on]) .use-btn{display:none}
   #savedOv.dim{background:rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-  .promo.saved{height:auto;padding:24px 20px calc(18px + var(--sab))}
+  .promo.saved{height:auto;padding:24px 20px max(12px, var(--sab))}
   .promo.saved .fade{top:0;height:auto;background:linear-gradient(180deg,rgba(255,255,255,0) 50px,rgba(255,255,255,.85) 105px,#fff 130px)}
   .saved-body{position:relative;z-index:2}
   .saved .addr-card{position:relative;left:auto;right:auto;bottom:auto;width:100%;min-height:91px;border:2px solid transparent;
@@ -496,7 +504,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .fl-fab img{width:40px;height:40px;object-fit:contain}
 
   /* Order-from mall picker */
-  #mallSheet{z-index:48;max-height:78%;display:flex;flex-direction:column;padding-bottom:calc(16px + var(--sab));border-radius:32px 32px 0 0}
+  #mallSheet{z-index:48;max-height:78%;display:flex;flex-direction:column;padding-bottom:max(12px, var(--sab));border-radius:32px 32px 0 0}
   .scrim.top{z-index:47}
   .ms-list{overflow-y:auto;margin:0 -20px;padding:0 20px;scrollbar-width:none}
   .ms-list::-webkit-scrollbar{display:none}
@@ -646,11 +654,12 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .pd-sec textarea{display:block;width:100%;min-height:48px;border:1px solid #e3e5e5;border-radius:8px;background:#fff;padding:15px 16px;font:400 16px/16px var(--hn);color:var(--ink);resize:none;outline:none;margin-top:8px}
   .pd-sec textarea::placeholder{color:#72777a}
   .pd-sec textarea:focus{border-color:#c9ced8}
-  .pd-foot{position:absolute;left:0;right:0;bottom:0;padding:12px 20px calc(12px + var(--sab));background:#fff;box-shadow:0 -6px 20px rgba(10,30,90,.06)}
+  .pd-foot{position:absolute;left:0;right:0;bottom:0;padding:12px 20px max(12px, var(--sab));background:#fff;box-shadow:0 -6px 20px rgba(10,30,90,.06)}
   .pd-add:disabled{background:#c9ced8;cursor:not-allowed}
   .pd-foot{display:flex;align-items:center;gap:12px}
   .pd-qty{flex:none;display:flex}
-  .pd-foot .pd-add{flex:1;min-width:0;padding:0 20px;gap:8px;justify-content:center}
+  .pd-foot .pd-add{flex:1;min-width:0;padding:0 20px;gap:8px;justify-content:center;font:500 14px/1.2 var(--hn)}
+  .pd-foot .pd-add *{font:inherit}
   .pd-foot .pd-add #pdAddSum:empty{display:none}
   .pd-foot .pd-add .l{min-width:0;overflow:hidden}
   .pd-foot .pd-add #pdAddTxt{overflow:hidden;text-overflow:ellipsis}
@@ -686,7 +695,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .om-p small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:400 12px/1.35 var(--hn);color:var(--ink-2)}
   .rp-deal{cursor:pointer}
   #rsOv{z-index:52;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-  .rs{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:32px 32px 0 0;padding:32px 20px calc(18px + var(--sab));
+  .rs{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:32px 32px 0 0;padding:32px 20px max(12px, var(--sab));
     max-height:82%;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
   #rsOv.on .rs{transform:none}
   .rs .close{position:absolute;right:20px;top:-52px;width:40px;height:40px;border-radius:100px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.15);display:grid;place-items:center}
@@ -802,7 +811,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .pl .pr{margin-top:8px}
   .pl .add{right:0;bottom:0}
   /* Sticky bottom bar: promo line while the cart is empty → collapses into the cart button once an item is added */
-  .rp-foot{position:absolute;z-index:6;left:0;right:0;bottom:0;padding:12px 20px calc(4px + var(--sab));background:#fff;box-shadow:0 4px 17px rgba(0,0,0,.1)}
+  .rp-foot{position:absolute;z-index:6;left:0;right:0;bottom:0;padding:12px 20px max(12px, var(--sab));background:#fff;box-shadow:0 4px 17px rgba(0,0,0,.1)}
   .rp-promo{display:flex;align-items:center;gap:12px;height:40px;overflow:hidden;transition:height .25s ease,opacity .2s,margin .25s}
   .rp-promo .ic{width:40px;height:40px;border-radius:100px;background:#e9edf7;display:grid;place-items:center;flex:none}
   .rp-promo .ic img{width:28px;height:28px;object-fit:contain}
@@ -843,10 +852,10 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .fl.instant{transition:none !important}
   .fl.cp{transform:translateY(100%)}   /* My Cart slides up instead of in from the right */
   .fl.cp.on{transform:none}
-  .cp-head{position:relative;padding-top:var(--sat);background:#fff;border-bottom:1px solid #e7e7e7}
-  .cp-bar{height:46px;display:flex;align-items:center;justify-content:center;position:relative;margin:0 16px}
+  .cp-head{position:relative;padding-top:calc(var(--sat) + 12px);background:#fff;border-bottom:1px solid #e7e7e7}   /* 12px above the title row, 12px under the tabs */
+  .cp-bar{height:40px;display:flex;align-items:center;justify-content:center;position:relative;margin:0 16px}
   .cp-bar h2{font:500 18px/1 var(--dm);color:var(--ink-2)}
-  .cp-x{position:absolute;left:0;top:3px;width:40px;height:40px;border-radius:100px;background:#f0f4fe;display:grid;place-items:center}
+  .cp-x{position:absolute;left:0;top:0;width:40px;height:40px;border-radius:100px;background:#f0f4fe;display:grid;place-items:center}
   /* My Cart tabs reuse the category chip component (.fl-chips) */
   #cpTabs{padding:8px 20px 12px;position:static;background:none}
   #cpTabs button{display:flex;align-items:center;gap:6px}
@@ -1028,11 +1037,11 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .co-place{width:100%;height:56px;border-radius:48px;background:linear-gradient(83.8deg,#6b4eff .8%,#074af8 153.7%);color:#fff;font:500 16px/16px var(--hn)}
   .co-place:disabled{background:#c9ced8}
   /* Grand total sticks to the bottom; Place order slides in once you reach the end of the page */
-  .co-foot{position:sticky;bottom:0;z-index:2;background:#fff;padding:12px 20px calc(12px + var(--sab));box-shadow:0 -6px 16px rgba(10,30,90,.07)}
+  .co-foot{position:sticky;bottom:0;z-index:2;background:#fff;padding:12px 20px max(12px, var(--sab));box-shadow:0 -6px 16px rgba(10,30,90,.07)}
   .co-foot .co-grand{padding:4px 0}
   .co-foot .co-place{display:block;max-height:0;opacity:0;margin-top:0;overflow:hidden;transition:max-height .25s ease,opacity .2s,margin .25s}
   .co-foot.at-end .co-place{max-height:56px;opacity:1;margin-top:8px}
-  .co-foot.at-end{padding-bottom:calc(20px + var(--sab))}
+  .co-foot.at-end{padding-bottom:max(12px, var(--sab))}   /* 12px under the button, or just clear of the home bar */
   .co-dlg{position:absolute;inset:0;z-index:56;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s}
   .co-dlg.on{opacity:1;pointer-events:auto}
   .co-dlg .box{width:313px;background:#fff;border-radius:24px;padding:24px;text-align:center;transform:scale(.96);transition:transform .2s}
@@ -1048,7 +1057,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .co-dlg .opts button.on svg{visibility:visible}
   .co-dlg .ok{margin-top:18px;width:100%;height:48px;border-radius:48px;background:linear-gradient(83.8deg,#6b4eff .8%,#074af8 153.7%);color:#fff;font:500 16px/48px var(--hn)}
   /* Address sheet uses the same clean component as the far-address sheet: white sheet, title, #f0f4fe card */
-  .promo.saved{background:#fff;padding:24px 24px calc(var(--sab) + 16px)}
+  .promo.saved{background:#fff;padding:24px 24px max(12px, var(--sab))}
   .promo.saved .promo-clip{display:none}
   .saved-h{font:500 20px/1.3 var(--hn);color:#262626;margin-bottom:20px}
   .saved .addr-card{min-height:0;border:0;background:#f0f4fe;box-shadow:none;padding:16px 20px;border-radius:16px}
@@ -1380,7 +1389,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .nb .rp-banner i{background:#eef2fd;color:#3a5fcf;margin-top:8px}
   .nb-intro{margin:16px 20px 0;font:400 14px/1.45 var(--hn);color:rgba(30,30,30,.75)}
   #nbChips{position:sticky;top:calc(var(--sat) + 56px);z-index:4;background:#fff;padding-top:16px}
-  .nb-tools{display:flex;gap:8px;align-items:center;padding:0 20px 4px}
+  .nb-tools{display:none}   /* price filter + sort removed from brand pages (defaults: all prices, popular first) */
   .nb-price{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
   .nb-price::-webkit-scrollbar{display:none}
   .nb-price button{flex:none;height:30px;padding:0 12px;border-radius:48px;border:1px solid #e3e7ef;background:#fff;color:#6c7a89;font:400 12px/28px var(--hn)}
@@ -1396,7 +1405,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   /* Far-address bottom sheet */
   .far{position:absolute;inset:0;z-index:58;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .22s}
   .far.on{opacity:1;pointer-events:auto}
-  .far-sh{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:32px 32px 0 0;padding:24px 24px calc(var(--sab) + 16px);display:flex;flex-direction:column;gap:20px;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+  .far-sh{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:32px 32px 0 0;padding:24px 24px max(12px, var(--sab));display:flex;flex-direction:column;gap:20px;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
   .far.on .far-sh{transform:none}
   .far-x{position:absolute;right:20px;top:-52px;width:40px;height:40px;border-radius:100px;background:#fff;display:grid;place-items:center;box-shadow:0 4px 12px rgba(0,0,0,.15)}
   .far-x:active{background:#f0f4fe}
@@ -2037,6 +2046,17 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   </div>
 
   <!-- See all -->
+  <!-- Same-day brand page: every product of one brand -->
+  <div class="ov sa sb" id="sbOv">
+    <div class="sa-head">
+      <button class="back" id="sbBack" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b5bdb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <div><h3 id="sbTitle"></h3><small id="sbSub"></small></div>
+    </div>
+    <label class="sr-field sb-field" id="sbField"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4"/></svg>
+      <input id="sbInput" autocomplete="off" enterkeyhint="search">
+      <button class="sr-clear" id="sbClear" aria-label="Clear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg></button></label>
+    <div class="sb-body" id="sbBody"></div>
+  </div>
   <div class="ov sa" id="saOv">
     <div class="sa-head">
       <button class="back" id="saBack" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b5bdb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
@@ -2126,10 +2146,10 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     if (!loc.at || cid === 'nationwide') return it.malls > 1 ? it.malls + ' SM Malls' : it.mall;
     const near = nearby();
     if (!near.length) return 'Not available in your area';
-    if (!(it.malls > 1)) return near[0].name;                   // single-mall item: the user's nearest mall
-    // local count scales with how widely the item is stocked nationwide (MALLS.length ≈ all SM malls)
-    const n = Math.max(1, Math.min(near.length, Math.round(near.length * it.malls / MALLS.length)));
-    return n > 1 ? n + ' SM Malls' : near[0].name;
+    // same stock rule the mall picker uses: count the nearby malls that actually carry it; one mall → name it
+    const c = near.filter(m => carries(it.avail || it, m)).sort((a, b) => a.d - b.d);   // Same-day cards carry their product's stock key
+    if (c.length > 1) return c.length + ' SM Malls';
+    return (c[0] || near[0]).name;
   };
   const mallChip = (it, cid) => `<span class="chip">${pinS}${mallLabel(it, cid)}</span>`;
   const cardHTML = (cid, i) => {
@@ -2153,6 +2173,9 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
 
   // Toast
   let tt;
+  // Keep the selected chip/tab of a horizontal row centred in view (My Cart tabs, search categories)
+  const chipFocus = (bar, smooth) => { const on = bar && bar.querySelector('button.on'); if (!on || bar.scrollWidth <= bar.clientWidth) return;
+    bar.scrollTo({ left: Math.max(0, on.offsetLeft - (bar.clientWidth - on.offsetWidth) / 2), behavior: smooth ? 'smooth' : 'auto' }); };
   const toast = msg => { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1800); };
 
   // Header shadow on scroll
@@ -3002,6 +3025,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const renderAll = q => {
     const order = ['food', 'sameday', 'grocery', 'nationwide'], open = cid => service[cid] !== 'no';
     $('#srCats').innerHTML = ['all'].concat(order).map(c => `<button data-c="${c}" class="${SR.cat === c ? 'on' : ''}${c !== 'all' && !open(c) ? ' dis' : ''}">${c === 'all' ? 'All' : SR_CAT[c]}</button>`).join('');
+    { const bar = $('#srCats'), x = bar.scrollLeft; bar.scrollLeft = x; requestAnimationFrame(() => chipFocus(bar, true)); }   // keep the selected category in view
     requestAnimationFrame(() => $('#srList').style.top = $('#srOv .sr-head').offsetHeight + 'px');
     const esc = q.replace(/[<>&]/g, ''), none = `<p class="fl-empty" style="padding:32px 20px">No results for “${esc}” here.</p>`;
     const prodRow = (cid, hits, sale) => hits.map(({ i }) => cardHTML(cid, i)).join('');
@@ -3119,7 +3143,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       if (pc) { const id = pc.dataset.sd, x = SD_PROD.find(y => y.id === id);
         if (e.target.closest('.add, .inc')) sdAdd(id); else if (e.target.closest('.dec')) sdStep(id, -1); else if (!e.target.closest('.step')) return sdOpen(id);
         return; }
-      if (e.target.closest('.sd-st')) return toast('Store pages are coming soon');
+      { const stb = e.target.closest('.sd-st'); if (stb) { srRemember($('#srInput').value); return openSB(stb.dataset.st); } }
       return;
     }
     if (srAll()) {
@@ -3130,7 +3154,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       if (pc) { const id = pc.dataset.sd, x = SD_PROD.find(y => y.id === id);
         if (e.target.closest('.add, .inc')) sdAdd(id); else if (e.target.closest('.dec')) sdStep(id, -1); else if (!e.target.closest('.step')) return sdOpen(id);
         return; }
-      if (e.target.closest('.sd-st')) return toast('Store pages are coming soon');
+      { const stb = e.target.closest('.sd-st'); if (stb) { srRemember($('#srInput').value); return openSB(stb.dataset.st); } }
       if (e.target.closest('.sr-tile')) return toast('Store pages are coming soon');
       return;   // product cards: the global card handler adds them to the cart
     }
@@ -3838,7 +3862,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     const n = sAll(); count += n - (cartBy.sameday || 0); cartBy.sameday = n;
     badge.textContent = count; badge.classList.toggle('on', count > 0);
     sdSyncBadge(); spSyncBadge(); sdFoot();
-    $$('#sdBody .pc[data-sd], #srList .pc[data-sd]').forEach(el => { const x = SD_PROD.find(y => y.id === el.dataset.sd); if (x) el.outerHTML = sdCard(x); });
+    $$('#sdBody .pc[data-sd], #srList .pc[data-sd], #sbBody .pc[data-sd]').forEach(el => { const x = SD_PROD.find(y => y.id === el.dataset.sd); if (x) el.outerHTML = sdCard(x); });
   };
   const sdImg = k => `assets/${k}.webp`;
   const sEsc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
@@ -4747,7 +4771,10 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   };
   const closeBrand = () => { $('#nbOv').classList.remove('on'); sbSync(); if ($('#nwOv').classList.contains('on')) renderNW(); };
   $('#nbBack').addEventListener('click', closeBrand);
-  $('#nbSearch').addEventListener('click', () => { openSR('nw'); $('#srInput').value = nb.b.n; SR.phase = 'results'; renderSR(); });
+  $('#nbSearch').addEventListener('click', () => {   // search inside this brand: brand name header, search bar, the brand's products
+    const b = nb.b; openSBList(b.n, 'All products', () => nbProds(b.id), `Search ${b.n}`, true);
+    setTimeout(() => $('#sbInput').focus(), 350);
+  });
   $('#nbScroll').addEventListener('scroll', () => {
     const head = $('#nbHead'), hb = head.getBoundingClientRect().bottom, solid = $('#nbOv .rp-banner').getBoundingClientRect().bottom < hb + 8;
     if (head.classList.contains('solid') !== solid) { head.classList.toggle('solid', solid); sbSync(); }
@@ -4817,15 +4844,60 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const renderNWSearch = q => { const h = nwSrHTML(q, true);
     $('#srList').innerHTML = h ? h : `<p class="fl-empty" style="padding:32px 20px">No brands or products match “${q.replace(/[<>&]/g, '')}”.</p>`; };
 
+  // Order landing "Same-Day Delivery" row → the same products as the Same-day page (one per category first, sale items early)
+  { const seen = new Set(), pick = [];
+    [...SD_PROD].sort((a, b) => (b.old ? 1 : 0) - (a.old ? 1 : 0)).forEach(x => { if (pick.length < 8 && !seen.has(x.c)) { seen.add(x.c); pick.push(x); } });
+    SD_PROD.forEach(x => { if (pick.length < 8 && !pick.includes(x)) pick.push(x); });
+    CATS.sameday.items = pick.map(x => ({ brand: x.br, name: x.n, price: x.p, malls: sdAvail(x).malls, avail: sdAvail(x), src: `assets/${x.img}.webp`, sdid: x.id })); }
   // Order landing "Nationwide" row → real Nationwide products
   CATS.nationwide.items = ['n-ps1', 'n-bn3', 'n-uq1', 'n-tk2', 'n-ss2', 'n-cr1', 'n-mb1', 'n-lg1'].map(id => { const x = prodOf(id);
     return { brand: x.br, name: x.n, price: x.p, malls: 1, src: `assets/${x.img}.webp`, nwid: x.id }; });
   renderRows();
+  // ---------- Same-day brand page: header = brand, search within the brand, all its products ----------
+  const sb = { b: null, list: null };   // list: {title, items()} for a Same-day "See all"; otherwise a brand page
+  const sbProds = nm => SD_PROD.filter(x => x.br === nm);
+  const renderSB = () => {
+    $('#sbOv').classList.toggle('no-price', !(sb.list && sb.list.nw) && $('#sdOv').classList.contains('no-price'));   // same price rule as the Same-day landing (Nationwide: always priced)
+    if (sb.list) {
+      const all = sb.list.items(), q = $('#sbInput').value.trim().toLowerCase(), raw = $('#sbInput').value.trim();
+      const xs = q ? all.filter(x => (x.n + ' ' + x.br + ' ' + x.c + ' ' + (x.mT || '')).toLowerCase().includes(q)) : all;
+      $('#sbField').classList.toggle('has', !!q); $('#sbOv').classList.toggle('mall-set', !sb.list.nw && !!fl.mall);
+      $('#sbSub').textContent = sb.list.nw ? `${all.length} product${all.length === 1 ? '' : 's'} · ships nationwide` : `${all.length} item${all.length === 1 ? '' : 's'}${fl.mall ? ' · ' + fl.mall : ''}`;
+      const grid = (t, ys) => sb.list.nw ? `<div class="sr-sec sd"><div class="sec-head"><h2>${t}</h2></div><div class="sd-grid">${ys.map(nwCard).join('')}</div></div>` : sdGrid(t, ys);
+      $('#sbBody').innerHTML = xs.length ? grid(q ? `Results for “${sEsc(raw)}”` : sb.list.head, xs) : `<p class="sb-empty">No items match “${sEsc(raw)}”.</p>`;
+      return;
+    }
+    const nm = sb.b, st = SD_STORES.find(x => x[0] === nm), all = sbProds(nm), q = $('#sbInput').value.trim().toLowerCase();
+    const xs = q ? all.filter(x => (x.n + ' ' + x.c).toLowerCase().includes(q)) : all;
+    $('#sbField').classList.toggle('has', !!q); $('#sbOv').classList.toggle('mall-set', !!fl.mall);   // one mall picked: no mall chips on cards
+    $('#sbSub').textContent = `${all.length} item${all.length === 1 ? '' : 's'}${fl.mall ? ' · ' + fl.mall : st ? ` · at ${st[2]} SM Malls` : ''}`;
+    let html = xs.length ? sdGrid(q ? `Results for “${sEsc($('#sbInput').value.trim())}”` : 'All products', xs) : `<p class="sb-empty">${q ? `No ${sEsc(nm)} items match “${sEsc($('#sbInput').value.trim())}”.` : `${sEsc(nm)} items are coming soon.`}</p>`;
+    if (!q && all.length < 4) {   // few items in the demo data: suggest more from the same category, clearly labelled
+      const cat = st ? st[3] : (all[0] || {}).c, more = SD_PROD.filter(x => x.br !== nm && x.c === cat).slice(0, 6);
+      if (more.length) html += sdGrid(`More in ${cat}`, more);
+    }
+    $('#sbBody').innerHTML = html;
+  };
+  const openSBList = (title, head, items, ph, nw) => { sb.list = { head, items, nw }; $('#sbTitle').textContent = title; $('#sbInput').value = ''; $('#sbInput').placeholder = ph; renderSB(); $('#sbBody').scrollTop = 0; $('#sbOv').classList.add('on'); };
+  const openSB = nm => { sb.list = null; sb.b = nm; $('#sbTitle').textContent = nm; $('#sbInput').value = ''; $('#sbInput').placeholder = `Search ${nm}`; renderSB(); $('#sbBody').scrollTop = 0; $('#sbOv').classList.add('on'); };
+  $('#sbBack').addEventListener('click', () => $('#sbOv').classList.remove('on'));
+  $('#sbInput').addEventListener('input', renderSB);
+  $('#sbClear').addEventListener('click', e => { e.preventDefault(); $('#sbInput').value = ''; renderSB(); $('#sbInput').focus(); });
+  $('#sbBody').addEventListener('click', e => {
+    if (sb.list && sb.list.nw) return nwClick(e);   // Nationwide brand search
+    const card = e.target.closest('.pc[data-sd]'); if (!card) return;
+    if (e.target.closest('.add, .inc')) return sdAdd(card.dataset.sd); if (e.target.closest('.dec')) return sdStep(card.dataset.sd, -1); if (e.target.closest('.step')) return; return sdOpen(card.dataset.sd);
+  });
   $('#sdBody').addEventListener('click', e => {
     const card = e.target.closest('.pc[data-sd]');
     if (card) { if (e.target.closest('.add, .inc')) return sdAdd(card.dataset.sd); if (e.target.closest('.dec')) return sdStep(card.dataset.sd, -1); if (e.target.closest('.step')) return; return sdOpen(card.dataset.sd); }
-    const stb = e.target.closest('.sd-st'); if (stb) { const c = SD_STORES.find(x => x[0] === stb.dataset.st)[3]; sd.cat = c; renderSD(); return toast(`${stb.dataset.st} · showing ${c}`); }
-    const see = e.target.closest('.sd-see'); if (see) return toast(see.dataset.v === 'stores' ? 'All brands at The SM Store' : 'Showing all items');
+    const stb = e.target.closest('.sd-st'); if (stb) return openSB(stb.dataset.st);
+    const see = e.target.closest('.sd-see'); if (see) {
+      const here = x => (sd.cat === 'All' || x.c === sd.cat) && sdHere(x);
+      if (see.dataset.v === 'sale') return openSBList('11:11 Sale', 'On sale today', () => SD_PROD.filter(x => here(x) && x.old), 'Search sale items');
+      if (see.dataset.v === 'all') return openSBList(sd.cat === 'All' ? 'Same-day' : sd.cat, sd.cat === 'All' ? 'All products' : sd.cat, () => SD_PROD.filter(here), 'Search products');
+      return toast('All brands at The SM Store');
+    }
   });
   $('#sdChips').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; sd.cat = b.dataset.c; renderSD(); });
   $('#sdSeg').addEventListener('click', e => {
@@ -4944,7 +5016,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     const c = CATS[card.dataset.cat], it = c.items[+card.dataset.i], v = service[card.dataset.cat];
     if (v === 'no') return toast(svcNA(c.title));
     if (c.kind === 'food') return openRestaurant(it.name);
-    if (card.dataset.cat === 'sameday') { const x = SD_PROD.find(y => y.img === 'p/' + it.img); if (x) return sdAdd(x.id); }
+    if (card.dataset.cat === 'sameday' && it.sdid) return sdAdd(it.sdid);
     if (card.dataset.cat === 'nationwide' && it.nwid) return nwAdd(it.nwid);
     if (card.dataset.cat === 'grocery') return needMall(it, { img: `assets/p/${it.img}.webp`, name: it.name, sub: 'Grocery' }, (m, picked) => {
       if (picked) sdMallSet(m);
@@ -5002,6 +5074,10 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   };
   $('#saBack').addEventListener('click', () => $('#saOv').classList.remove('on'));
 
+  // Every chip/tab row: when the selected chip changes (tap, filter, scroll-spy), slide it into view
+  $$('.fl-chips').forEach(bar => { let q = 0;
+    new MutationObserver(() => { if (q) return; q = requestAnimationFrame(() => { q = 0; if (bar.offsetParent) chipFocus(bar, true); }); })
+      .observe(bar, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] }); });
   // ---------- Back to top: any page scrolled past ~1 screen shows a "Back to top" pill above its bottom bar ----------
   { const btt = $('#btt'), ph = btt.parentElement; let el = null;
     const place = () => {   // sit just above whatever is pinned at the bottom (tab bar, cart bar, buttons)
