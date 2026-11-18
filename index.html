@@ -426,6 +426,12 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .res b{display:block;font:500 14px/1.3 var(--hn);color:var(--ink)}
   .res small{display:block;font:400 12px/1.3 var(--hn);color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .res mark{background:none;color:var(--blue-strong)}
+  /* Search your location → "Use current location" shortcut above Recent / Saved */
+  .ds-cur{width:100%;display:flex;gap:14px;align-items:center;text-align:left;padding:12px 16px;border-radius:12px;background:#f0f4fe;margin:12px 0 4px;flex:none;transition:background .15s}
+  .ds-cur:active{background:#e3e9fa}
+  .ds-cur .ic{width:36px;height:36px;border-radius:100px;background:#fff;display:grid;place-items:center;flex:none}
+  .ds-cur b{display:block;font:500 14px/1.3 var(--hn);color:var(--blue-strong)}
+  .ds-cur small{display:block;font:400 12px/1.3 var(--hn);color:var(--muted);margin-top:2px}
   .empty{text-align:center;font:400 14px/1.4 var(--hn);color:var(--muted);padding:30px 10px}
   .maps-btn{position:absolute;left:50%;bottom:40px;transform:translateX(-50%);height:40px;padding:0 20px;border-radius:30px;background:#6b4eff;color:#fff;
     display:flex;align-items:center;gap:10px;font:400 16px var(--hn);box-shadow:0 8px 20px rgba(107,78,255,.35);white-space:nowrap}
@@ -1529,9 +1535,9 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   <button data-time="21:41" class="on">9:41 PM · 10PM malls not accepting orders</button>
   <button data-time="22:30">10:30 PM · 10PM malls closed</button>
   <button data-time="1:00">1:00 AM · all malls closed</button>
-  <b style="margin-top:10px">Same-day · selected mall on open</b>
-  <button data-sdm="one" class="on">1 nearest mall</button>
-  <button data-sdm="all">All nearby malls</button>
+  <b style="margin-top:10px">Order landing · Food &amp; Same-day mall</b>
+  <button data-sdm="one">Set 1 nearest mall</button>
+  <button data-sdm="all" class="on">All nearby malls (always pick)</button>
   <button id="seedCartBtn">🛒 Fill demo Food, Same-day + Nationwide carts</button>
   <button id="bigOrderBtn">🛍 Big order over ₱2,500 (pick-up only)</button>
 </div>
@@ -1827,6 +1833,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
         <input id="addrInput" placeholder="Search street, building or barangay" autocomplete="off">
         <button class="clear" id="addrClear" aria-label="Clear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg></button>
       </label>
+      <button class="ds-cur" id="dsCur"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f2feb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></span><span><b>Use current location</b><small>Detect where you are now with GPS</small></span></button>
       <div class="seg"><button data-list="recent" class="on">Recent</button><button data-list="saved">Saved</button></div>
       <div class="results" id="results"></div>
     </div>
@@ -2205,12 +2212,18 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const fmtKm = d => d < 1 ? Math.round(d * 1000) + ' m' : (d < 10 ? d.toFixed(1) : Math.round(d)) + ' km';
   // Chip: one mall -> that mall's name; several -> "N SM Malls". With a location, local sections use the
   // user's nearest malls; Nationwide items ship from their listed mall(s) so they keep national counts.
+  let sdDef = 'all';   // prototype control: 'one' = Food & Same-day use the 1 nearest mall · 'all' = all nearby malls, the user always picks
+  const onOrderLanding = () => !$('#orderScreen').hidden && !$('#flOv').classList.contains('on') && !$('#sdOv').classList.contains('on');
   const HS = { home: false, allMalls: false, flPrev: null };   // search opened from Home: scoped to the Home mall selection
   const mallLabel = (it, cid) => {
     if (HS.home && fl.mall && cid !== 'nationwide') return fl.mall;   // Home search scoped to one mall
     if (!loc.at || cid === 'nationwide') return it.malls > 1 ? it.malls + ' SM Malls' : it.mall;
     const near = nearby();
     if (!near.length) return 'Not available in your area';
+    if (sdDef === 'one' && fl.mall) {   // 1-nearest-mall mode: name the set mall, or the nearest mall that carries it
+      const at = near.find(m => m.name === fl.mall); if (at && carries(it.avail || it, at)) return at.name;
+      const c1 = near.filter(m => carries(it.avail || it, m)).sort((a, b) => a.d - b.d)[0]; return (c1 || at || near[0]).name;
+    }
     // same stock rule the mall picker uses: count the nearby malls that actually carry it; one mall → name it
     const c = near.filter(m => carries(it.avail || it, m)).sort((a, b) => a.d - b.d);   // Same-day cards carry their product's stock key
     if (c.length > 1) return c.length + ' SM Malls';
@@ -2289,8 +2302,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   $$('.svc').forEach(b => b.addEventListener('click', () => {
     const v = service[b.dataset.go], el = document.getElementById(b.dataset.go);
     if (v === 'no') return toast(svcNA(SVC_NAME[b.dataset.go]));
-    if (b.dataset.go === 'food' || b.dataset.go === 'sameday') fl.mall = null;   // entering from the Order landing always starts with all nearby malls
-    if (b.dataset.go === 'sameday') fl.mall = sdDefMall();   // …except Same-day, which follows the prototype control (default: the 1 nearest mall)
+    if (b.dataset.go === 'food' || b.dataset.go === 'sameday') fl.mall = sdDefMall();   // prototype control: the 1 nearest mall, or all nearby malls (null)
     if (b.dataset.go === 'food') return openFood();
     if (b.dataset.go === 'sameday') return openSD();
     if (b.dataset.go === 'nationwide') return openNW();   // Nationwide: brand directory landing   // Same-day has its own product-centric landing
@@ -2392,8 +2404,12 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     const list = loc.at ? MALLS.map(m => ({ ...m, d: km(loc.at, m) })).filter(m => m.d <= NEAR_KM && carries(it, m)).sort((a, b) => a.d - b.d) : [];
     if (list.length <= 1) return openRestPage(it, list[0] || null, how);
     // Default mall (last one picked): go straight to it when this restaurant is there
-    const def = fl.mall && list.find(m => m.name === fl.mall);
-    if (def && !force) return openRestPage(it, def, how);
+    if (!force && onOrderLanding()) {   // Order landing follows the prototype control
+      if (sdDef === 'one') return openRestPage(it, list.find(m => m.name === fl.mall) || list[0], how);   // the set nearest mall (or the nearest that has it)
+    } else {
+      const def = fl.mall && list.find(m => m.name === fl.mall);
+      if (def && !force) return openRestPage(it, def, how);
+    }
     const near = list[0];
     $('#rsLogo').src = it.img; $('#rsLogo').alt = it.name;
     $('#rsName').textContent = it.name;
@@ -2422,11 +2438,13 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const carriersOf = it => loc.at ? nearby().filter(m => carries(it, m)).sort((a, b) => a.d - b.d) : [];
   // run go(mall) once a specific mall is set: the picked one, the only one that has it, or ask
   const needMall = (it, head, go) => {
+    if (sdDef === 'all' && onOrderLanding()) fl.mall = null;   // all-nearby mode: on the Order landing the user always picks a mall
     const list = carriersOf(it);
     if (!loc.at) return go(null);
     if (!list.length) return toast(`${head.name} isn’t available at your nearby SM malls`);
     const cur = fl.mall && list.find(m => m.name === fl.mall);
     if (cur) return go(cur);
+    if (sdDef === 'one' && onOrderLanding()) { const m1 = [...list].sort((a, b) => a.d - b.d)[0]; fl.mall = m1.name; return go(m1, true); }   // 1-nearest mode: the nearest mall that has it (as its chip says)
     if (list.length === 1) { fl.mall = list[0].name; return go(list[0], true); }
     pickMall({ ...head, sub: fl.mall ? `Not available at ${fl.mall} · choose another mall` : head.sub }, list, m => { fl.mall = m.name; go(m, true); });
   };
@@ -3875,11 +3893,13 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     sdSyncBadge(); sdFoot();
   };
   // Prototype control: which mall Same-day starts with — the 1 nearest mall (default) or all nearby malls
-  let sdDef = 'one';
   const sdDefMall = () => { const near = loc.at ? nearby() : []; if (sdDef !== 'one' || !near.length) return null; return near.reduce((a, b) => (b.d < a.d ? b : a)).name; };
   $$('.proto-ctrl [data-sdm]').forEach(btn => btn.addEventListener('click', () => {
     sdDef = btn.dataset.sdm; $$('.proto-ctrl [data-sdm]').forEach(x => x.classList.toggle('on', x === btn));
-    if ($('#sdOv').classList.contains('on')) { fl.mall = sdDefMall(); renderMalls(); renderSD(); }
+    fl.mall = sdDefMall(); renderRows(); renderMalls();
+    if ($('#sdOv').classList.contains('on')) renderSD();
+    if ($('#flOv').classList.contains('on')) { renderFL(); animateFL(); }
+    toast(sdDef === 'one' ? `Food & Same-day: ${fl.mall || 'set your location first'}` : 'Food & Same-day: pick a mall each time');
   }));
   const openSD = () => {
     if (service.sameday === 'no') return toast(svcNA(SVC_NAME.sameday));
@@ -4284,14 +4304,18 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       spSyncAdd(); spRelated(x); spHead(x); toast(`Shopping from ${m.name}`);
     });
   });
-  const closeSP = () => { $('#spOv').classList.remove('on'); sdCtx.mall = undefined; sdCtx.mode = null; sdCtx.edit = null; sbSync(); };
+  let spFromOrder = false;   // product page opened from the Order landing's Same-Day row → close / add lands on the Same-day page
+  const closeSP = () => { $('#spOv').classList.remove('on'); sdCtx.mall = undefined; sdCtx.mode = null; sdCtx.edit = null; sbSync();
+    if (spFromOrder === 'nw') { spFromOrder = false; if (!$('#nwOv').classList.contains('on')) openNW(); else renderNW(); }   // ships from the one Nationwide warehouse
+    else if (spFromOrder) { spFromOrder = false; if (!$('#sdOv').classList.contains('on')) openSD(); else renderSD(); }   // …at the mall that was picked (fl.mall)
+  };
   const spSyncBadge = () => { const n = sp.x && sp.x.nw ? nwCount() : sAll(), b = $('#spBadge'); b.textContent = n; b.classList.toggle('on', n > 0); };
   // "+" on a card: add straight to the cart, unless the product has variants to choose first (same rule as Food)
   const sdAdd = id => { const x = SD_PROD.find(y => y.id === id); if (!x) return; if (service.sameday === 'no') return toast(svcNA(SVC_NAME.sameday)); if (sdNeedsCfg(x)) return openSP(id);
     sdNeedMall(x, (m, picked) => { sdStep(id, 1); if (picked && m) toast(`Added to cart · ${x.n} · from ${m.name}`); }); };
   $('#spClose').addEventListener('click', closeSP);
   $('#spShare').addEventListener('click', () => toast('Share link copied'));
-  $('#spCartBtn').addEventListener('click', () => { const nwp = sp.x && sp.x.nw; closeSP(); openCart(nwp ? 'nationwide' : 'shop'); });
+  $('#spCartBtn').addEventListener('click', () => { const nwp = sp.x && sp.x.nw; spFromOrder = false; closeSP(); openCart(nwp ? 'nationwide' : 'shop'); });
   $('#spScroll').addEventListener('scroll', e => $('#spOv').classList.toggle('scrolled', e.target.scrollTop > 4), { passive: true });
   $('#spGroups').addEventListener('click', e => {
     if (e.target.closest('[data-guide]')) return toast('Size guide is coming soon');
@@ -4991,7 +5015,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     $('#sdHead').classList.toggle('scrolled', e.target.scrollTop > 4);
     const ch = $('#sdStick'); ch.classList.toggle('stuck', ch.getBoundingClientRect().top <= $('#sdHead').getBoundingClientRect().bottom + 1);
   }, { passive: true });
-  $('#sdBack').addEventListener('click', () => { $('#sdOv').classList.remove('on'); fl.mall = null; });   // back on the Order landing: forget the picked mall
+  $('#sdBack').addEventListener('click', () => { $('#sdOv').classList.remove('on'); fl.mall = sdDefMall(); renderRows(); });   // back on the Order landing: forget the picked mall
   $('#sdHist').addEventListener('click', () => toast('Order history'));
   $('#sdAddr').addEventListener('click', () => openSaved());
   $('#sdMalls').addEventListener('click', () => { msCtx = ''; $('#msInput').value = ''; renderMalls(); $('#msList').scrollTop = 0; $('#scrim').classList.add('top'); openSheet('#mallSheet'); });
@@ -5046,7 +5070,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     const ch = $('#flStick'), hb = $('#flHead').getBoundingClientRect().bottom;
     ch.classList.toggle('stuck', ch.getBoundingClientRect().top <= hb + 1);
   });
-  $('#flBack').addEventListener('click', () => { $('#flOv').classList.remove('on'); fl.mall = null; });   // back on the Order landing: forget the picked mall
+  $('#flBack').addEventListener('click', () => { $('#flOv').classList.remove('on'); fl.mall = sdDefMall(); renderRows(); });   // back on the Order landing: forget the picked mall
   $('#flHist').addEventListener('click', () => toast('Order history'));
   const flOpen = () => $('#flOv').classList.contains('on');
   $('#flAddr').addEventListener('click', () => openSaved());
@@ -5115,8 +5139,15 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     const c = CATS[card.dataset.cat], it = c.items[+card.dataset.i], v = service[card.dataset.cat];
     if (v === 'no') return toast(svcNA(c.title));
     if (c.kind === 'food') return openRestaurant(it.name);
-    if (card.dataset.cat === 'sameday' && it.sdid) return sdAdd(it.sdid);
-    if (card.dataset.cat === 'nationwide' && it.nwid) return nwAdd(it.nwid);
+    if (card.dataset.cat === 'sameday' && it.sdid) {   // Home Same-Day row: pick a mall (if needed), then always open the product details
+      const x = SD_PROD.find(y => y.id === it.sdid); if (!x) return;
+      if (service.sameday === 'no') return toast(svcNA(SVC_NAME.sameday));
+      return sdNeedMall(x, () => { spFromOrder = true; openSP(it.sdid); });
+    }
+    if (card.dataset.cat === 'nationwide' && it.nwid) {   // Order landing Nationwide row: open the product details; close / add lands on the Nationwide page
+      if (service.nationwide === 'no') return toast(svcNA(SVC_NAME.nationwide));
+      spFromOrder = 'nw'; return openSP(it.nwid);
+    }
     if (card.dataset.cat === 'grocery') return needMall(it, { img: `assets/p/${it.img}.webp`, name: it.name, sub: 'Grocery' }, (m, picked) => {
       if (picked) sdMallSet(m);
       count++; total += it.price; cartBy.grocery = (cartBy.grocery || 0) + 1; badge.textContent = count; badge.classList.add('on');
@@ -5343,6 +5374,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     if (name === 'home') renderHome();
     $('#homeScreen').hidden = name !== 'home';
     $('#orderScreen').hidden = name !== 'order';
+    if (name === 'order') { fl.mall = sdDefMall(); renderRows(); }   // Order landing: 1 nearest mall, or reset so the user picks
     if (name === 'order') { $('#hint').style.display = 'none'; skeleton('order', [$('#orderScreen'), $('#header'), $('#fab')], 1400); }
     setTab(name === 'order' ? 'Order' : 'Home');
   };
@@ -5466,6 +5498,13 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   $$('.seg button').forEach(b => b.addEventListener('click', () => { list = b.dataset.list; input.value = ''; renderResults(); }));
   const openSearch = () => { input.value = ''; list = 'recent'; renderResults(); show('ds'); setTimeout(() => input.focus({ preventScroll: true }), 380); };
   $('#dsBack').addEventListener('click', () => { input.blur(); hide('ds'); });
+  // Use current location: locate right away when location is allowed, otherwise ask first (same prompts as the Order flow)
+  $('#dsCur').addEventListener('click', () => {
+    input.blur();
+    if (st.perm === 'while' || st.perm === 'once') return locate();
+    if (st.perm === 'off') return show('off');
+    show('perm');
+  });
   $('#locBtn').addEventListener('click', () => openSaved());   // location sheet: current-location or turn-on variant
 
   // Choose on maps
