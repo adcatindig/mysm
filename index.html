@@ -713,7 +713,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .pd-foot{position:absolute;left:0;right:0;bottom:0;padding:12px 20px max(12px, var(--sab));background:#fff;box-shadow:0 -6px 20px rgba(10,30,90,.06)}
   .pd-add:disabled{background:#c9ced8;cursor:not-allowed}
   .pd-foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .pd-hrs{flex:0 0 100%}   /* Same-day product page: mall closing soon / closed note above Add to cart */
+  .pd-hrs{flex:0 0 100%}   /* Food & Same-day product pages: mall closing soon / closed note above Add to cart */
   .pd-hrs:empty{display:none}
   .pd-hrs .co-note{margin:0;padding:8px 12px}
   .pd-qty{flex:none;display:flex}
@@ -820,7 +820,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .rp-banner small{display:block;font:400 14px/1.3 var(--hn);color:var(--muted);margin-top:4px}
   .rp-banner i.cutoff{background:#fff4d1;color:#8a5a00;height:auto;line-height:1.3;padding:6px 14px;font-size:12px}
   .rp-banner i.closed{background:#444;color:#fff}
-  /* closed mall: + buttons stay active (adding shows a Closed message); only Place order is disabled */
+  #rpOv.no-orders .add,#rpOv.no-orders .step .inc{filter:grayscale(1);opacity:.45}   /* 'Don't allow' scenario only */
   .rp-banner i{display:inline-block;margin-top:10px;height:28px;padding:0 16px;border-radius:30px;background:var(--blue-strong);color:#fff;font:500 13px/28px var(--hn);font-style:normal}
   #rpChips{position:sticky;top:calc(var(--sat) + 56px);z-index:4;background:#fff;padding-top:24px}
   #rpChips.stuck{padding-top:12px}
@@ -1549,6 +1549,9 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   <button data-time="21:41" class="on">9:41 PM · 10PM malls not accepting orders</button>
   <button data-time="22:30">10:30 PM · 10PM malls closed</button>
   <button data-time="1:00">1:00 AM · all malls closed</button>
+  <b style="margin-top:10px">Closed / not accepting malls</b>
+  <button data-cm="allow" class="on">Allow · browse &amp; add to cart</button>
+  <button data-cm="block">Don't allow · no browsing or adding</button>
   <b style="margin-top:10px">Order landing · Food &amp; Same-day mall</b>
   <button data-sdm="one">Set 1 nearest mall</button>
   <button data-sdm="all" class="on">All nearby malls (always pick)</button>
@@ -1620,7 +1623,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
         <button class="svc" data-go="nationwide"><span class="wrap"><img class="ico" src="data:image/webp;base64,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" alt=""><i class="pu">Pick-up only</i></span><span>Nationwide Shopping</span></button>
       </div>
     </section>
-    <div class="os-wrap" id="osClosed" hidden><div class="co-note closed os-closed"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><b>Closed</b> · Nearby SM malls open again at 10AM. You can still browse and add to cart, and place your order once they open.</span></div></div>
+    <div class="os-wrap" id="osClosed" hidden><div class="co-note cap os-closed"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><b>Closed</b> · Nearby SM malls open again at 10AM. You can still browse and add to cart, and place your order once they open.</span></div></div>
 
     <section class="section" id="food">
       <div class="sec-head"><h2>Food Order<span class="sec-tag"></span></h2><button class="see-all" data-cat="food">See all</button><span class="sec-chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#78858f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></div>
@@ -2044,7 +2047,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       <button class="glass" id="pdShare" aria-label="Share"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></button>
       <button class="glass" id="pdCartBtn" aria-label="Cart"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><span class="badge" id="pdBadge">0</span></button>
     </div>
-    <div class="pd-foot"><div class="pd-qty"><div class="step pd-step" id="pdQty"><button class="dec" aria-label="Remove one"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg></button><b id="pdQ">1</b><button class="inc" aria-label="Add one"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div><button class="rp-cart pd-add" id="pdAdd"><span class="l"><span id="pdAddTxt">Add to cart</span></span><b id="pdAddSum"></b></button></div>
+    <div class="pd-foot"><div class="pd-hrs" id="pdHrs"></div><div class="pd-qty"><div class="step pd-step" id="pdQty"><button class="dec" aria-label="Remove one"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg></button><b id="pdQ">1</b><button class="inc" aria-label="Add one"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div><button class="rp-cart pd-add" id="pdAdd"><span class="l"><span id="pdAddTxt">Add to cart</span></span><b id="pdAddSum"></b></button></div>
   </div>
 
   <!-- Nationwide Shopping landing: brand directory (built from the Food landing's parts) -->
@@ -2294,15 +2297,32 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const SVC_NAME = { food: 'Food Order', sameday: 'Same-day Delivery', grocery: 'Grocery', nationwide: 'Nationwide Shopping' };
   let service = SCENARIOS.full, override = null;
   let svcMode = 'full', svcClosed = false;
+  let closedMode = 'allow';   // prototype control: closed / not-accepting malls → 'allow' browse & add to cart (Place order disabled) · 'block' no browsing or adding
+  const cmBlock = () => closedMode === 'block';
   const applyService = mode => {
     if (mode) svcMode = mode;
     service = { ...SCENARIOS[override || svcMode] };
     // Time of day: when every nearby SM mall is closed, the mall-based services can't take orders (Nationwide still can)
     const near = loc.at ? nearby() : [];
     try { svcClosed = !!near.length && near.every(m => mallStatus(m) === 'closed'); } catch (e) { svcClosed = false; }   // mallStatus is defined further down
-    if (svcClosed) service.grocery = 'no';   // Food & Same-day stay browsable with a Closed chip; Place order is disabled at checkout
-    const oc = document.getElementById('osClosed'); if (oc) oc.hidden = !svcClosed;
-    const shut = k => svcClosed && (k === 'food' || k === 'sameday') && service[k] !== 'no';
+    if (svcClosed) (cmBlock() ? ['food', 'sameday', 'grocery'] : ['grocery']).forEach(k => service[k] = 'no');   // allow: Food & Same-day stay browsable with a Closed chip · block: only Nationwide
+    const oc = document.getElementById('osClosed');
+    if (oc) {   // Order landing status: all nearby malls closed (red) · some nearby malls closing within the hour (yellow)
+      if (!oc.dataset.closed) oc.dataset.closed = oc.innerHTML;
+      const allClosedTxt = cmBlock() ? 'Nearby SM malls are closed and open again at 10AM. Nationwide Shopping is still available.' : 'Nearby SM malls open again at 10AM. You can still browse and add to cart, and place your order once they open.';
+      let soon = [], noOrd = [];
+      try { if (!svcClosed) { soon = near.filter(m => mallStatus(m) === 'soon'); noOrd = near.filter(m => mallOrderState(m) !== 'open'); } } catch (e) {}   // defined further down (first call)
+      const ck = oc.dataset.closed.match(/<svg[\s\S]*?<\/svg>/)[0], note = h => `<div class="co-note os-closed">${ck}<span>${h}</span></div>`;   // yellow
+      if (svcClosed) oc.innerHTML = oc.dataset.closed.replace(/(<\/b> · )[^<]*/, '$1' + allClosedTxt);   // every nearby mall closed: red
+      else if (noOrd.length) oc.innerHTML = note(noOrd.length < near.length ? '<b>Closing soon</b> · Some malls are not accepting orders' : '<b>Closing soon</b> · Not accepting orders');   // last 30 mins or already closed (e.g. 10PM malls at 10:30 PM)
+      else if (soon.length) {   // closing within the hour, still taking orders
+        const c = soon.map(m => mallClose(m)).reduce((a, b) => Math.min(a, b)), mins = Math.round((c - SIM.h - SIM.m / 60) * 60);
+        const who = soon.length === 1 ? soon[0].name + ' closes' : `${soon.length} nearby SM malls close`;
+        oc.innerHTML = note(`<b>Closing soon</b> · ${who} at ${c === 22 ? '10PM' : '12MN'}, in ${mins} mins. Place your order before then.`);
+      }
+      oc.hidden = !svcClosed && !soon.length && !noOrd.length;
+    }
+    const shut = k => svcClosed && !cmBlock() && (k === 'food' || k === 'sameday') && service[k] !== 'no';
     $$('.svc').forEach(b => { b.dataset.state = service[b.dataset.go]; b.toggleAttribute('data-closed', shut(b.dataset.go)); b.querySelector('.pu').innerHTML = `<span>${shut(b.dataset.go) ? 'Closed' : 'Pick-up only'}</span>`; });
     $$('.section').forEach(sec => {
       const v = service[sec.id]; sec.dataset.state = v; sec.classList.remove('expanded'); sec.toggleAttribute('data-closed', shut(sec.id));
@@ -2693,7 +2713,9 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     if (!n) { rpHideDeal(); return; }
     const sum = Object.values(restLines()).reduce((a, l) => a + l.p * l.q, 0);
     const ord = rpOrderState(), c0 = $('#rpCart');
-    c0.disabled = false; c0.classList.remove('off');   // closed mall: the cart still opens checkout (Place order is disabled there)
+    const blk = cmBlock() && ord !== 'open';
+    c0.disabled = blk; c0.classList.toggle('off', blk);   // allow: the cart still opens checkout (Place order is disabled there)
+    if (blk) { $('#rpCartTxt').textContent = `${ord === 'closed' ? 'Closed' : 'Closing soon'}. Try again tomorrow at 10AM`; $('#rpCartSum').textContent = ''; rp.shown = n; return; }
     $('#rpCartTxt').textContent = `${n} item${n > 1 ? 's' : ''} • ${rp.it.name}`;
     $('#rpCartSum').textContent = peso(sum);
     if (wasShown && n !== rp.shown) { const c = $('#rpCart'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
@@ -2740,6 +2762,9 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     if (s === 'open') return '';
     return s === 'closed' ? `${m ? m.name + ' is' : 'SM malls are'} closed. You can place your order at 10AM.` : `${m.name} is closing soon · not accepting orders`; };
   const addedToast = (txt, m) => { const s = shutMsg(m); toast(s ? `Added to cart. ${s}` : txt); };
+  // 'Don't allow' scenario: no adding from a closed / not-accepting mall
+  const addBlocked = m0 => { const m = mallObj(m0); if (!cmBlock() || !m || mallOrderState(m) === 'open') return false;
+    toast(mallOrderState(m) === 'closed' ? `${m.name} is closed · opens at 10AM` : `${m.name} is closing soon · not accepting orders`); return true; };
   const closedChip = m0 => { const near = loc.at ? nearby() : [], m = mallObj(m0);
     return (m ? mallStatus(m) === 'closed' : near.length && near.every(x => mallStatus(x) === 'closed')) ? '<i class="mc-closed">Closed</i>' : ''; };
   const rpHoursSync = () => {
@@ -2749,7 +2774,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     el.textContent = st8 === 'closed' ? 'Closed · Opens at 10AM' : st8 === 'cutoff' ? 'Closing. Not accepting orders'
       : soon ? `Closes at ${hoursAt(rp.it, m).replace('PM', 'pm')} · ${Math.round((mallClose(m) - SIM.h - SIM.m / 60) * 60)} mins left`
       : `Opens until ${(m ? hoursAt(rp.it, m) : '10PM').replace('PM', 'pm').replace('MN', ' midnight')}`;
-    $('#rpOv').classList.toggle('no-orders', st8 !== 'open');
+    $('#rpOv').classList.toggle('no-orders', st8 !== 'open' && cmBlock());
     if (st8 !== 'open') $('#rpDeal').classList.remove('on');
     rpFoot();
   };
@@ -2815,6 +2840,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const rpSetTo = (x, n) => {
     const cur = qOf(x), d = n - cur; if (!d) return;
     if (d < 0) { for (let i = 0; i < -d; i++) setQ(x, -1); rpRefreshCtrls(x.n, true); rpFoot(); syncFood(); return; }
+    if (addBlocked(rp.mall)) return;
     const ln = Object.keys(restLines()).filter(k => (restLines()[k].base || k) === x.n).pop();
     const unit = ln ? restLines()[ln].p : x.p;
     const add = () => { const l = ln && restLines()[ln]; if (l) l.q += d; else for (let i = 0; i < d; i++) setQ(x, 1); };
@@ -2833,6 +2859,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     if (qn) { const x = rp.items[+qn.parentElement.dataset.k]; return qtyEdit(qn, qOf(x), n => rpSetTo(x, n)); }
     const b = e.target.closest('.add, .inc, .dec');
     if (!b) { const card = e.target.closest('.pc, .pl'); if (!card) return; const k = card.querySelector('[data-k]'); return k && openPD(rp.items[+k.dataset.k]); }
+    if (!b.classList.contains('dec') && addBlocked(rp.mall)) return;
     const x = rp.items[+b.closest('[data-k]').dataset.k];
     if (!b.classList.contains('dec') && needsCfg(x)) return openPD(x);   // required options → choose them first
     // Big order: adding this would push the mall's delivery cart over the cap → ask before adding
@@ -2930,10 +2957,11 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     $('#pdGroups').innerHTML = pd.groups.map(g => `<div class="pd-sec"><h4>${g.title}${g.req ? '<i class="req">Required</i>' : ''}</h4><p>${g.sub}</p>
       ${g.opts.map(([o, p], i) => { const on = (pd.sel[g.id] || []).includes(i); return `<button class="pd-opt${on ? ' on' : ''}" data-g="${g.id}" data-i="${i}"><span class="${g.type === 'radio' ? 'pd-rd' : 'co-cb'}${on ? ' on' : ''}">${g.type === 'radio' ? '' : CHECK}</span><span class="l">${o}</span><em>${p ? '+' + peso(p) : 'Free'}</em></button>`; }).join('')}</div>`).join('');
     const ck = pd.edit ? co.key : bucketKey(), cartN = FCART[ck] ? bucketCount(FCART[ck]) : 0, bd = $('#pdBadge'); bd.textContent = cartN; bd.classList.toggle('on', cartN > 0);
-    const btn = $('#pdAdd'), ok = pdReady();
+    const btn = $('#pdAdd'), blk = cmBlock() && ord !== 'open', ok = pdReady() && !blk;
     btn.disabled = !ok;
-    $('#pdAddTxt').textContent = !pdReady() ? 'Select required options' : `${pd.edit ? 'Update item' : 'Add to cart'} • ${peso(pdTotal() * pd.q)}`;   // "Add to cart • ₱179"
+    $('#pdAddTxt').textContent = blk ? (ord === 'closed' ? 'Closed · try again at 10AM' : 'Not accepting orders') : !pdReady() ? 'Select required options' : `${pd.edit ? 'Update item' : 'Add to cart'} • ${peso(pdTotal() * pd.q)}`;   // "Add to cart • ₱179"
     $('#pdAddSum').textContent = '';
+    { const m = pd.edit ? coBucket().mall : rp.mall; $('#pdHrs').innerHTML = m ? coHoursNote(m, m.name) : ''; }   // closing soon / not accepting / closed → same note as checkout
     $('#pdQ').textContent = pd.q; $('#pdQty .dec').disabled = pd.q <= 1; $('#pdQty .inc').disabled = pd.q >= 99;
   };
   const openPD = (x, edit = null) => {
@@ -3606,7 +3634,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const coHoursNote = (mall, mName) => {
     if (!mall) return '';
     const s8 = mallStatus(mall), close = fmtClose(mall), hrs = `<span style="white-space:nowrap">10AM – ${close}</span>`;
-    if (mallOrderState(mall) === 'cutoff') return `<div class="co-note cap">${CLOCK}<span><b>Closing soon · Not accepting orders</b> · ${mName} closes at ${close}. Try again tomorrow at 10AM.</span></div>`;
+    if (mallOrderState(mall) === 'cutoff') return `<div class="co-note">${CLOCK}<span><b>Closing soon · Not accepting orders</b> · ${mName} closes at ${close}. Try again tomorrow at 10AM.</span></div>`;
     if (s8 === 'closed') return `<div class="co-note cap">${CLOCK}<span><b>Closed</b> · ${mName} opens again at 10AM. Mall hours: ${hrs}.</span></div>`;
     if (s8 === 'soon') return `<div class="co-note">${CLOCK}<span><b>Closing soon</b> · ${mName} closes at ${close}, in ${Math.round((mallClose(mall) - SIM.h - SIM.m / 60) * 60)} mins. Place your order before then.</span></div>`;
     return '';   // open with time to spare: no status bar
@@ -3924,6 +3952,14 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   };
   // Prototype control: which mall Same-day starts with — the 1 nearest mall (default) or all nearby malls
   const sdDefMall = () => { const near = loc.at ? nearby() : []; if (sdDef !== 'one' || !near.length) return null; return near.reduce((a, b) => (b.d < a.d ? b : a)).name; };
+  $$('.proto-ctrl [data-cm]').forEach(btn => btn.addEventListener('click', () => {
+    closedMode = btn.dataset.cm; $$('.proto-ctrl [data-cm]').forEach(x => x.classList.toggle('on', x === btn));
+    applyService();
+    ['#flOv', '#sdOv', '#rpOv', '#spOv', '#pdOv'].forEach(id => { if (cmBlock() && service.food === 'no' && (id === '#flOv' || id === '#rpOv' || id === '#pdOv')) $(id).classList.remove('on'); if (cmBlock() && service.sameday === 'no' && (id === '#sdOv' || id === '#spOv')) $(id).classList.remove('on'); });
+    if ($('#rpOv').classList.contains('on')) rpHoursSync();
+    if ($('#pdOv').classList.contains('on')) renderPD();
+    toast(cmBlock() ? 'Closed malls: no browsing or adding' : 'Closed malls: browse & add to cart');
+  }));
   $$('.proto-ctrl [data-sdm]').forEach(btn => btn.addEventListener('click', () => {
     sdDef = btn.dataset.sdm; $$('.proto-ctrl [data-sdm]').forEach(x => x.classList.toggle('on', x === btn));
     fl.mall = sdDefMall(); renderRows(); renderMalls();
@@ -3941,6 +3977,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const sdStep = (id, d) => {
     const x = SD_PROD.find(y => y.id === id); if (!x) return;
     if (d > 0 && service.sameday === 'no') return toast(svcNA(SVC_NAME.sameday));
+    if (d > 0 && addBlocked(sdCtx.mall !== undefined ? sdCtx.mall : sdMallFor(x))) return;
     if (d < 0 && !sdQ(id)) return;
     const m = sAdd(x, d); syncShop();
     const f = $('#sdFab'); f.classList.remove('bump'); void f.offsetWidth; f.classList.add('bump');
@@ -4315,6 +4352,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     if (y.nw && e.target.closest('.rel-add') && !sdNeedsCfg(y)) { nAddTo(y, 1); syncNW(); if ($('#coOv').classList.contains('on') && co.kind === 'nw') renderCheckout(); spSyncBadge(); return toast(`Added to cart · ${y.n}`); }
     if (e.target.closest('.rel-add') && !sdNeedsCfg(y)) {   // + adds straight to the same mall's cart
       if (service.sameday === 'no') return toast(svcNA(SVC_NAME.sameday));
+      if (addBlocked(sdCtx.mall !== undefined ? sdCtx.mall : sdMallFor(y))) return;
       if (sdCtx.mall !== undefined) { sAddTo(sKey(sdModeNow(), sdCtx.mall), sdModeNow(), sdCtx.mall, y, 1); syncShop(); if ($('#coOv').classList.contains('on') && co.kind === 'shop') renderCheckout(); }
       else sdStep(y.id, 1);
       spSyncBadge(); return addedToast(`Added to cart · ${y.n}`, sdCtx.mall !== undefined ? sdCtx.mall : fl.mall);
@@ -4411,6 +4449,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       return sdNeedMall(sp.x, (m, picked) => { if (picked) { spSyncAdd(); $('#spPrice').innerHTML = `<b>${peso(sp.x.p)}</b>${sp.x.old ? `<s>${peso(sp.x.old)}</s>` : ''}`; $('#spChip').innerHTML = flChip(sdAvail(sp.x)); } $('#spAdd').click(); });
     }
     const x = sp.x, v = sdOpts(x).map(([t]) => sp.sel[t]).join(', '), note = $('#spNote').value.trim(), ed = sdCtx.edit;
+    if (!ed && addBlocked(sdCtx.mall !== undefined ? sdCtx.mall : sdMallFor(x))) return;
     let m;
     if (ed) {   // editing a line from checkout: replace it, keep its quantity
       const mode = sdCtx.mode, mall = sdCtx.mall, key = sKey(mode, mall), b = SCART[key], sl = b && b.stores[ed.sn];
