@@ -1104,6 +1104,8 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .co-grand{display:flex;justify-content:space-between;font:500 18px/24px var(--hn);color:#090a0a;padding:8px 0 12px}
   .co-place{width:100%;height:56px;border-radius:48px;background:linear-gradient(83.8deg,#6b4eff .8%,#074af8 153.7%);color:#fff;font:500 16px/16px var(--hn)}
   .co-place:disabled{background:#c9ced8}
+  .co-alt{display:block;width:100%;height:48px;margin-top:8px;border-radius:48px;background:#fff;border:1.5px solid var(--blue);color:var(--blue);font:500 15px/1 var(--hn)}   /* mall not taking orders: move the order to another open mall */
+  .co-alt:active{filter:brightness(.96)}
   /* Grand total sticks to the bottom; Place order slides in once you reach the end of the page */
   .co-foot{position:sticky;bottom:0;z-index:2;background:#fff;padding:12px 20px max(12px, var(--sab));box-shadow:0 -6px 16px rgba(10,30,90,.07)}
   .co-foot .co-grand{padding:4px 0}
@@ -3612,7 +3614,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       ${pick ? '<div><span>Pick-up fee</span><span>Free</span></div>' : `<div><span>Delivery fee<small>1 fee for up to ${MAX_RESTO} restaurants</small></span><span>${peso(fee)}</span></div>`}
       ${disc ? `<div class="disc"><span>Voucher (${v.best.t})</span><span>−${peso(disc)}</span></div>` : ''}</div></div>
       <div class="co-foot">${capNote}<div class="co-grand"><span>Grand Total</span><span>${peso(grand)}</span></div>
-      <button class="co-place" id="coPlace"${!nSel || noOrd || (overCap && !pick) ? ' disabled' : ''}>${noOrd ? closedLbl(mall) : overCap && !pick ? 'Store Pick-up only for this order' : !nSel ? 'Select a restaurant' : `Place order (${nSel} restaurant${nSel > 1 ? 's' : ''})`}</button></div>`;
+      <button class="co-place" id="coPlace"${!nSel || noOrd || (overCap && !pick) ? ' disabled' : ''}>${noOrd ? closedLbl(mall) : overCap && !pick ? 'Store Pick-up only for this order' : !nSel ? 'Select a restaurant' : `Place order (${nSel} restaurant${nSel > 1 ? 's' : ''})`}</button>${noOrd && nSel && loc.at ? '<button class="co-alt" id="coAltMall">Order from another mall</button>' : ''}</div>`;
     // fewer than 3 restaurants: suggest more brands at this mall ("Add more"), same card as Order More's brand tile
     let addMore = '';
     if (Object.keys(b.rests).length < 3) {
@@ -3683,6 +3685,17 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     Object.keys(ex.rests).forEach(n => { if (co.sel.size < MAX_RESTO && !(target === 'delivery' && ex.rests[n].it.pickupOnly)) co.sel.add(n); });
     renderCheckout(); syncFood();
     toast(target === 'pickup' ? 'Switched to Store Pick-up' : stay ? 'Switched to Delivery · pick-up-only items stay in your pick-up cart' : 'Switched to Delivery');
+  };
+  // Move the selected restaurants to another mall (same mode); the rest stay in this mall's cart
+  const coSwitchMall = m => {
+    const b = coBucket(), nk = bucketKey(b.mode, m), ex = FCART[nk] || { mode: b.mode, mall: m, rests: {}, t: b.t };
+    const moving = [...co.sel].filter(n => b.rests[n]);
+    moving.forEach(rn => { const r = b.rests[rn], er = ex.rests[rn] || (ex.rests[rn] = { it: r.it, lines: {} }); Object.entries(r.lines).forEach(([n, l]) => { er.lines[n] ? er.lines[n].q += l.q : er.lines[n] = { ...l }; }); delete b.rests[rn]; });
+    FCART[nk] = ex; if (!Object.keys(b.rests).length) delete FCART[co.key];
+    co.key = nk; co.sel = new Set(moving);
+    Object.keys(ex.rests).forEach(n => { if (co.sel.size < MAX_RESTO) co.sel.add(n); });
+    renderCheckout(); syncFood(); $('#coScroll').scrollTop = 0;
+    toast(`Your order is now from ${m.name}`);
   };
   const coMarkSeen = () => { const b = coBucket(); if (b) co.seen[co.key] = JSON.stringify([b.mode, Object.entries(b.rests).map(([rn, r]) => [rn, Object.entries(r.lines).map(([n, l]) => [n, l.q])])]); };
   const openCheckout = (key, first) => {
@@ -3801,6 +3814,15 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     if (t.closest('#coCut')) { co.cutlery = !co.cutlery; return renderCheckout(); }
     if (t.closest('#coPay')) return coDialog(`<h4>Payment method</h4><div class="opts">${PAYS[coBucket().mode].map(p => `<button data-pay="${p}" class="${p === co.pay ? 'on' : ''}"><span>${p}</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#577cdb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>`).join('')}</div>`);
     if (t.closest('#coVch')) return openVP();
+    if (t.closest('#coAltMall')) {   // the mall stopped taking orders: pick another open nearby mall that has the same restaurants
+      const b = coBucket(), sel = [...co.sel].map(n => b.rests[n]).filter(Boolean);
+      const cand = nearby().filter(m => (!b.mall || m.name !== b.mall.name) && mallOrderState(m) === 'open' && sel.every(r => carries(r.it, m)));
+      if (!cand.length) return toast(`No other nearby mall with ${sel.length > 1 ? 'these restaurants' : sel[0].it.name} is taking orders`);
+      const pick = b.mode === 'pickup';
+      pickMall({ img: sel[0].it.img, name: sel.length > 1 ? sel.map(r => r.it.name).join(', ') : sel[0].it.name, sub: `Open at ${cand.length} nearby SM mall${cand.length > 1 ? 's' : ''}`, price: pick ? null : m => `ETA ${foodEta(m)}` }, cand, coSwitchMall);
+      $('#rsTitle').textContent = 'Order from which SM Mall?';
+      return true;
+    }
     if (t.closest('#coPlace')) {
       const b = coBucket(), n = co.sel.size, mName = b.mall ? b.mall.name : 'SM Supermalls';
       [...co.sel].forEach(rn => delete b.rests[rn]);
