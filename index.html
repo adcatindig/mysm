@@ -765,6 +765,10 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .rs h3{font:500 20px/1.3 var(--hn);color:var(--ink-2);text-align:left;margin-bottom:20px}
   .rs-banner{display:flex;gap:16px;align-items:center;padding:16px;border-radius:20px;background:#f0f4fe;margin-bottom:12px;flex:none}
   .rs-banner img{width:100px;height:100px;border-radius:16px;object-fit:cover;flex:none}
+  /* 2+ restaurants (Order from another mall): logos stacked vertically, overlapping to fit the 100px slot */
+  .rs-logos{position:relative;width:100px;height:100px;flex:none}
+  .rs-logos[hidden]{display:none}
+  .rs-logos img{position:absolute;left:50%;transform:translateX(-50%);border-radius:12px;border:2px solid #fff;box-shadow:0 2px 8px rgba(20,30,70,.16);background:#fff}
   .rs-banner b{display:block;font:500 18px/1.2 var(--dm);color:var(--ink)}
   .rs-banner small{display:block;font:400 13px/1.3 var(--hn);color:var(--muted);margin-top:4px}
   .rs-banner i{display:inline-block;margin-top:10px;height:28px;padding:0 14px;border-radius:30px;background:var(--blue-strong);color:#fff;font:500 12px/28px var(--hn);font-style:normal}
@@ -998,6 +1002,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   #coOv.reveal .co-scroll{animation:flIn .35s ease both}
   /* location sheets must sit above checkout (z 51) when opened from it */
   #savedOv,#promoOv,#dsOv,#mapOv,#locatingOv,#saOv,#permOv,#offOv{z-index:53}
+  #saOv.fl-all{z-index:47}   /* Food See all: above the Food landing, below the mall picker / restaurant / checkout it opens */
   /* Delivery / Store Pick-up pills + location card (Figma 2412-45672) */
   .co-mode button.dis{color:#b8bec8;text-decoration:line-through}
   .co-loc2{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #e9edf7;border-radius:16px;background:#fff;cursor:pointer}
@@ -1262,6 +1267,10 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .sd-st .ph::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);pointer-events:none}   /* hairline so light logos don't melt into the page */
   .sd-st b{display:block;margin-top:8px;font:500 16px/1.3 var(--hn);color:#1e1e1e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sd-st .chip{margin-top:6px;max-width:110px}
+  .sb-brands{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 12px;padding:0 0 24px}
+  .sb-brands .sd-st{width:auto;min-width:0}
+  .sb-brands .sd-st .ph{width:100%;height:auto;aspect-ratio:1}
+  .sb-brands .sd-st .chip{max-width:100%}
   .sd .fl-empty{padding:40px 20px;text-align:center}
   /* Service icons: always a true circle on every device (size from width only; the image can't stretch it) */
   .svc .wrap{flex:none;width:min(74px,100%);height:auto;aspect-ratio:1/1;min-height:0;contain:size layout}
@@ -1968,7 +1977,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     <div class="rs" id="rsSheet">
       <button class="close" id="rsClose" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       <h3 id="rsTitle">Order from which SM Mall?</h3>
-      <div class="rs-banner"><img id="rsLogo" alt=""><div><b id="rsName"></b><small id="rsSub"></small><i id="rsHours"></i></div></div>
+      <div class="rs-banner"><img id="rsLogo" alt=""><span class="rs-logos" id="rsLogos" hidden></span><div><b id="rsName"></b><small id="rsSub"></small><i id="rsHours"></i></div></div>
       <div class="ms-list" id="rsList"></div>
     </div>
   </div>
@@ -2462,7 +2471,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       if (def && !force) return openRestPage(it, def, how);
     }
     const near = list[0];
-    $('#rsLogo').src = it.img; $('#rsLogo').alt = it.name;
+    $('#rsLogo').src = it.img; $('#rsLogo').alt = it.name; $('#rsLogo').style.display = ''; $('#rsLogos').hidden = true;
     $('#rsName').textContent = it.name;
     $('#rsSub').textContent = `${near.name} • ${fmtKm(near.d)} away`;
     const closes = new Set(list.map(m => hoursAt(it, m)));   // several malls with different closing times → generic label
@@ -2478,6 +2487,9 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const pickMall = (head, list, onPick) => {
     rsPick = onPick;
     $('#rsLogo').src = head.img; $('#rsLogo').alt = head.name;
+    { const imgs = (head.imgs || []).slice(0, 4), n = imgs.length, lg = $('#rsLogos'), sz = n >= 4 ? 44 : n === 3 ? 52 : 62;
+      lg.hidden = n < 2; $('#rsLogo').style.display = n >= 2 ? 'none' : '';   // 2+ restaurants: vertical stack of their logos inside the 100px slot
+      lg.innerHTML = n < 2 ? '' : imgs.map((src, i) => `<img src="${src}" alt="" style="width:${sz}px;height:${sz}px;top:${Math.round(i * (100 - sz) / (n - 1))}px;z-index:${n - i}">`).join(''); }
     $('#rsName').textContent = head.name; $('#rsSub').textContent = head.sub || `Available at ${list.length} nearby SM malls`;
     { const closes = new Set(list.map(m => fmtClose(m))), allClosed = list.every(m => mallStatus(m) === 'closed');   // same mall-hours pill as the restaurant sheet
       $('#rsHours').textContent = allClosed ? 'Closed now · opens 10AM' : closes.size > 1 ? 'Closing time varies per mall' : `Opens until ${[...closes][0].toLowerCase()}`; }
@@ -3819,7 +3831,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       const cand = nearby().filter(m => (!b.mall || m.name !== b.mall.name) && mallOrderState(m) === 'open' && sel.every(r => carries(r.it, m)));
       if (!cand.length) return toast(`No other nearby mall with ${sel.length > 1 ? 'these restaurants' : sel[0].it.name} is taking orders`);
       const pick = b.mode === 'pickup';
-      pickMall({ img: sel[0].it.img, name: sel.length > 1 ? sel.map(r => r.it.name).join(', ') : sel[0].it.name, sub: `Open at ${cand.length} nearby SM mall${cand.length > 1 ? 's' : ''}`, price: pick ? null : m => `ETA ${foodEta(m)}` }, cand, coSwitchMall);
+      pickMall({ img: sel[0].it.img, imgs: sel.map(r => r.it.img), name: sel.length > 1 ? sel.map(r => r.it.name).join(', ') : sel[0].it.name, sub: `Open at ${cand.length} nearby SM mall${cand.length > 1 ? 's' : ''}`, price: pick ? null : m => `ETA ${foodEta(m)}` }, cand, coSwitchMall);
       $('#rsTitle').textContent = 'Order from which SM Mall?';
       return true;
     }
@@ -3861,6 +3873,10 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     $('#flFeat').scrollLeft = 0;
     $$('#flFeat .card, #flList .lr').forEach((el, i) => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = `flIn .38s cubic-bezier(.2,.8,.2,1) ${Math.min(i, 8) * 40}ms both`; });
   };
+  const flFeatList = () => { const pick = fl.mode === 'pickup', match = it => fl.cuisine === 'All' || it.cuisine === fl.cuisine;
+    let feat = (loc.at ? relevant(FOOD_FEAT) : pick ? byOrder(FOOD_FEAT, PICK_FEAT) : FOOD_FEAT).filter(match);
+    if (fl.featOrd) feat = feat.slice().sort((a, b) => (fl.featOrd[a.name] ?? 99) - (fl.featOrd[b.name] ?? 99));
+    return feat; };
   const renderFL = () => {
     const pick = fl.mode === 'pickup';
     $('#flSeg').dataset.mode = fl.mode;
@@ -3889,7 +3905,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       $('#flClosed').innerHTML = lpClosedNote(near); }
     $('#flChips').innerHTML = CUISINES.map(c => `<button class="${c === fl.cuisine ? 'on' : ''}" data-c="${c}">${c}</button>`).join('');
     const match = it => fl.cuisine === 'All' || it.cuisine === fl.cuisine;
-    let feat = (loc.at ? relevant(FOOD_FEAT) : pick ? byOrder(FOOD_FEAT, PICK_FEAT) : FOOD_FEAT).filter(match);
+    let feat = flFeatList();
     if (fl.featOrd) feat = feat.slice().sort((a, b) => (fl.featOrd[a.name] ?? 99) - (fl.featOrd[b.name] ?? 99));   // reshuffled on each Delivery / Pick-up switch
     $('#flFeatSec').hidden = $('#flFeatSep').hidden = !feat.length;   // no featured spots → collapse the whole section
     $('#flFeat').innerHTML = feat.length ? feat.map(it => `<button class="card fl-r" data-n="${it.name}"><span class="ph${it.light ? ' light' : ''}"><img src="${it.img}" alt="${it.name}">${it.pickupOnly ? '<i class="po-tag">Pick-up only</i>' : ''}</span>
@@ -5088,6 +5104,14 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   const sbProds = nm => SD_PROD.filter(x => x.br === nm);
   const renderSB = () => {
     $('#sbOv').classList.toggle('no-price', !(sb.list && sb.list.nw) && $('#sdOv').classList.contains('no-price'));   // same price rule as the Same-day landing (Nationwide: always priced)
+    if (sb.list && sb.list.brands) {   // Brands See all: every brand tile, searchable; tap → that brand's page (back returns here)
+      const all = sb.list.items(), q = $('#sbInput').value.trim().toLowerCase(), raw = $('#sbInput').value.trim(), xs = q ? all.filter(x => x[0].toLowerCase().includes(q)) : all;
+      $('#sbField').classList.toggle('has', !!q); $('#sbOv').classList.toggle('mall-set', !!fl.mall);
+      $('#sbSub').textContent = `${all.length} brand${all.length === 1 ? '' : 's'}${fl.mall ? ' · ' + fl.mall : ''}`;
+      $('#sbBody').innerHTML = xs.length ? `<div class="sr-sec sd"><div class="sec-head"><h2>${q ? `Results for “${sEsc(raw)}”` : sb.list.head}</h2></div><div class="sb-brands">${xs.map(([nm, img, malls]) => `<button class="sd-st" data-st="${nm}"><span class="ph"><img src="assets/${img}.webp" alt=""></span><b>${nm}</b>${flChip({ name: nm, malls })}</button>`).join('')}</div></div>`
+        : `<p class="sb-empty">No brands match “${sEsc(raw)}”.</p>`;
+      return;
+    }
     if (sb.list) {
       const all = sb.list.items(), q = $('#sbInput').value.trim().toLowerCase(), raw = $('#sbInput').value.trim();
       const xs = q ? all.filter(x => (x.n + ' ' + x.br + ' ' + x.c + ' ' + (x.mT || '')).toLowerCase().includes(q)) : all;
@@ -5108,12 +5132,16 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     }
     $('#sbBody').innerHTML = html;
   };
-  const openSBList = (title, head, items, ph, nw) => { sb.list = { head, items, nw }; $('#sbTitle').textContent = title; $('#sbInput').value = ''; $('#sbInput').placeholder = ph; renderSB(); $('#sbBody').scrollTop = 0; $('#sbOv').classList.add('on'); };
-  const openSB = nm => { sb.list = null; sb.b = nm; $('#sbTitle').textContent = nm; $('#sbInput').value = ''; $('#sbInput').placeholder = `Search ${nm}`; renderSB(); $('#sbBody').scrollTop = 0; $('#sbOv').classList.add('on'); };
-  $('#sbBack').addEventListener('click', () => $('#sbOv').classList.remove('on'));
+  const openSBList = (title, head, items, ph, nw, brands) => { sb.prev = null; sb.list = { head, items, nw, brands, title, ph }; $('#sbTitle').textContent = title; $('#sbInput').value = ''; $('#sbInput').placeholder = ph; renderSB(); $('#sbBody').scrollTop = 0; $('#sbOv').classList.add('on'); };
+  const openSB = nm => { sb.list = null; sb.prev = null; sb.b = nm; $('#sbTitle').textContent = nm; $('#sbInput').value = ''; $('#sbInput').placeholder = `Search ${nm}`; renderSB(); $('#sbBody').scrollTop = 0; $('#sbOv').classList.add('on'); };
+  $('#sbBack').addEventListener('click', () => {
+    if (sb.prev) { const p = sb.prev; openSBList(p.title, p.head, p.items, p.ph, p.nw, p.brands); return; }   // brand page opened from Brands See all → back to the list
+    $('#sbOv').classList.remove('on');
+  });
   $('#sbInput').addEventListener('input', renderSB);
   $('#sbClear').addEventListener('click', e => { e.preventDefault(); $('#sbInput').value = ''; renderSB(); $('#sbInput').focus(); });
   $('#sbBody').addEventListener('click', e => {
+    if (sb.list && sb.list.brands) { const st = e.target.closest('.sd-st'); if (st) { const prev = sb.list; openSB(st.dataset.st); sb.prev = prev; } return; }
     if (sb.list && sb.list.nw) return nwClick(e);   // Nationwide brand search
     const card = e.target.closest('.pc[data-sd]'); if (!card) return;
     if (e.target.closest('.add, .inc')) return sdAdd(card.dataset.sd); if (e.target.closest('.dec')) return sdStep(card.dataset.sd, -1); if (e.target.closest('.step')) return; return sdOpen(card.dataset.sd);
@@ -5130,6 +5158,7 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
       const here = x => (sd.cat === 'All' || x.c === sd.cat) && sdHere(x);
       if (see.dataset.v === 'sale') return openSBList('11:11 Sale', 'On sale today', () => SD_PROD.filter(x => here(x) && x.old), 'Search sale items');
       if (see.dataset.v === 'all') return openSBList(sd.cat === 'All' ? 'Same-day' : sd.cat, sd.cat === 'All' ? 'All products' : sd.cat, () => SD_PROD.filter(here), 'Search products');
+      if (see.dataset.v === 'stores') return openSBList('Brands', 'All brands', () => SD_STORES.filter(x => sd.cat === 'All' || x[3] === sd.cat), 'Search brands', false, true);
       return toast('All brands at The SM Store');
     }
   });
@@ -5258,7 +5287,16 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     toast(fl.mall ? `Ordering from ${fl.mall}` : 'Showing all nearby malls');
   });
   $('#scrim').addEventListener('click', () => { $('#scrim').classList.remove('top'); msCtx = ''; });
-  $('#flFeatAll').addEventListener('click', () => openSeeAll('food'));
+  // Food landing See all: the same featured restaurants (mall, cuisine and Delivery / Pick-up aware); tapping one opens it like on the landing
+  $('#flFeatAll').addEventListener('click', () => {
+    const feat = flFeatList(), pick = fl.mode === 'pickup';
+    $('#saTitle').textContent = $('#flFeatTtl').textContent;
+    $('#saSub').textContent = `${feat.length} restaurant${feat.length === 1 ? '' : 's'} · ${fl.mall || (loc.at ? 'nearby SM malls' : 'SM malls')} · ${pick ? 'Store Pick-up' : 'Delivery'}`;
+    $('#saBody').innerHTML = feat.map(it => `<button class="card fl-r" data-n="${it.name}"><span class="ph${it.light ? ' light' : ''}"><img src="${it.img}" alt="${it.name}">${it.pickupOnly ? '<i class="po-tag">Pick-up only</i>' : ''}</span>
+      <span class="meta"><span class="name">${it.name}</span><span class="sub">${it.sub}</span></span>${flChip(it)}</button>`).join('') || '<p class="sa-foot">No featured restaurants here yet.</p>';
+    $('#saBody').scrollTop = 0; $('#saOv').classList.add('on', 'fl-all');
+  });
+  $('#saOv').addEventListener('click', e => { const r = e.target.closest('.fl-r'); if (r) openRestaurant(r.dataset.n); });
   // Cart button: a picked mall goes straight to that mall's checkout; "all nearby malls" opens the Food cart
   $('#flCart').addEventListener('click', () => { const k = flFootKey(); if (k) return openCheckout(k); openCart('food'); });
   $('#flCartIc').addEventListener('click', () => openCart('food'));
@@ -5336,9 +5374,9 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     $('#saSub').textContent = `${c.total.toLocaleString()} ${c.kind === 'food' ? 'restaurants' : 'items'} · showing ${c.items.length}`;
     $('#saBody').innerHTML = c.items.map((_, i) => cardHTML(cid, i)).join('') +
       `<p class="sa-foot">Prototype shows the first ${c.items.length}. More ${c.kind === 'food' ? 'restaurants' : 'items'} load as you scroll in the live app.</p>`;
-    $('#saBody').scrollTop = 0; $('#saOv').classList.add('on');
+    $('#saBody').scrollTop = 0; $('#saOv').classList.remove('fl-all'); $('#saOv').classList.add('on');
   };
-  $('#saBack').addEventListener('click', () => $('#saOv').classList.remove('on'));
+  $('#saBack').addEventListener('click', () => $('#saOv').classList.remove('on', 'fl-all'));
 
   // Every chip/tab row: when the selected chip changes (tap, filter, scroll-spy), slide it into view
   $$('.fl-chips').forEach(bar => { let q = 0;
