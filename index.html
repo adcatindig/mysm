@@ -1116,7 +1116,28 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
   .co-foot .co-grand{padding:4px 0}
   .co-foot .co-place{display:block;max-height:0;opacity:0;margin-top:0;overflow:hidden;transition:max-height .25s ease,opacity .2s,margin .25s}
   .co-foot.at-end .co-place{max-height:56px;opacity:1;margin-top:8px}
-  .co-foot.at-end{padding-bottom:max(12px, var(--sab))}   /* 12px under the button, or just clear of the home bar */
+  .co-foot.at-end{padding-bottom:max(12px, var(--sab))}
+  /* Slide to place order (Figma "Controls / Buttons" 2542:39119): gradient track, white knob with a glowing ring, particles while swiping */
+  .co-swipe{position:relative;height:56px;border-radius:48px;background:linear-gradient(83.8deg,#6b4eff .8%,#074af8 153.7%);touch-action:none;user-select:none;-webkit-user-select:none}
+  .co-foot .co-swipe{display:none}
+  .co-foot.at-end .co-swipe{display:block;margin-top:8px;animation:swIn .25s ease both}
+  @keyframes swIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .co-place.sw-hidden{display:none !important}
+  .co-swipe .sw-trail{position:absolute;left:0;top:0;bottom:0;width:56px;border-radius:48px;background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.2) 100%);pointer-events:none;opacity:0;transition:opacity .2s}
+  .co-swipe.sw-drag .sw-trail,.co-swipe.sw-done .sw-trail{opacity:1}
+  .co-swipe .sw-lbl{position:absolute;inset:0 24px 0 64px;display:flex;align-items:center;justify-content:center;color:#fff;font:500 16px/16px var(--hn);pointer-events:none;white-space:nowrap;
+    background:linear-gradient(90deg,#fff 40%,#c9d3ff 50%,#fff 60%) 0 0/300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:swShine 2.4s linear infinite}
+  @keyframes swShine{from{background-position:100% 0}to{background-position:0 0}}
+  .co-swipe .sw-knob{position:absolute;left:14px;top:10px;width:36px;height:36px;border-radius:48px;background:#fff;display:grid;place-items:center;cursor:grab;z-index:2;
+    box-shadow:inset 0 0 0 2.5px #fcbf00,inset 0 0 6px 2px rgba(252,191,0,.55),0 2px 8px rgba(10,20,80,.25)}
+  .co-swipe .sw-knob::before{content:"";position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(from var(--gx,0deg),#fcbf00,#ffe27a,#577cdb,#fa4d4d,#fcbf00);filter:blur(3px);opacity:.8;animation:gxSpin 2.2s linear infinite;
+    -webkit-mask:radial-gradient(circle,transparent 17px,#000 18.5px);mask:radial-gradient(circle,transparent 17px,#000 18.5px);pointer-events:none}   /* glow ring only outside the white knob */
+  .co-swipe .sw-knob svg{display:block}
+  .co-swipe.sw-drag .sw-knob{cursor:grabbing}
+  .co-swipe.sw-back .sw-knob,.co-swipe.sw-back .sw-trail{transition:transform .35s cubic-bezier(.3,1.4,.5,1),width .35s cubic-bezier(.3,1.4,.5,1)}
+  .co-swipe.sw-done .sw-knob{transition:transform .18s ease-out}
+  .co-swipe canvas{position:absolute;left:-20px;right:-20px;top:-36px;bottom:-20px;width:calc(100% + 40px);height:calc(100% + 56px);pointer-events:none;z-index:1}   /* under the knob, over the track */
+   /* 12px under the button, or just clear of the home bar */
   .co-dlg{position:absolute;inset:0;z-index:56;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s}
   .co-dlg.on{opacity:1;pointer-events:auto}
   .co-dlg .box{width:313px;background:#fff;border-radius:24px;padding:24px;text-align:center;transform:scale(.96);transition:transform .2s}
@@ -3652,6 +3673,53 @@ new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='attributes')fix(m.target);m
     if (!on && gap <= 8) { f.classList.add('at-end'); setTimeout(() => sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' }), 30); }
     else if (on && gap > 96) f.classList.remove('at-end');   // hysteresis so the reveal doesn't flicker
   };
+
+  // ---- Slide to place order: replaces every enabled Place order button in the checkouts; the real button stays (hidden) and is clicked on success
+  const SW_ARROW = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.9697 8.53033C12.6768 8.23744 12.6768 7.76256 12.9697 7.46967C13.2626 7.17678 13.7374 7.17678 14.0303 7.46967L18.0303 11.4697C18.1768 11.6161 18.25 11.8081 18.25 12C18.25 12.1017 18.2298 12.1987 18.1931 12.2871C18.1565 12.3755 18.1022 12.4584 18.0303 12.5303L14.0303 16.5303C13.7374 16.8232 13.2626 16.8232 12.9697 16.5303C12.6768 16.2374 12.6768 15.7626 12.9697 15.4697L15.6893 12.75H6C5.58579 12.75 5.25 12.4142 5.25 12C5.25 11.5858 5.58579 11.25 6 11.25H15.6893L12.9697 8.53033Z" fill="#0030FF"/></svg>';
+  const swReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const swMount = btn => {
+    const w = document.createElement('div'); w.className = 'co-swipe'; w.setAttribute('role', 'slider'); w.setAttribute('aria-label', 'Swipe to place order');
+    w.innerHTML = `<span class="sw-trail"></span><span class="sw-lbl">Swipe to place order</span><span class="sw-knob">${SW_ARROW}</span><canvas></canvas>`;
+    btn.before(w); btn.classList.add('sw-hidden');
+    const knob = w.querySelector('.sw-knob'), lbl = w.querySelector('.sw-lbl'), trail = w.querySelector('.sw-trail'), cv = w.querySelector('canvas'), cx = cv.getContext('2d');
+    let x = 0, sx = 0, max = 0, drag = false, parts = [], raf = 0, lastX = 0, done = false;
+    const DPR = Math.min(2, devicePixelRatio || 1);
+    const size = () => { const r = cv.getBoundingClientRect(); cv.width = r.width * DPR; cv.height = r.height * DPR; };
+    const set = v => { x = Math.max(0, Math.min(max, v)); knob.style.transform = `translateX(${x}px)`; trail.style.width = (x + 56) + 'px';
+      const p = max ? x / max : 0; lbl.style.opacity = Math.max(0, 1 - p * 1.6); w.setAttribute('aria-valuenow', Math.round(p * 100)); };
+    // particles: emitted at the knob, glowing (additive), drifting back along the track and out of it
+    const emit = (n, burst) => { if (swReduced) return; const r = cv.getBoundingClientRect(), k = knob.getBoundingClientRect();
+      const ox = k.left - r.left + k.width / 2, oy = k.top - r.top + k.height / 2;
+      for (let i = 0; i < n; i++) { const a = burst ? Math.random() * Math.PI * 2 : Math.PI + (Math.random() - .5) * 1.4, sp = burst ? 1.2 + Math.random() * 3 : .5 + Math.random() * 1.8;
+        parts.push({ x: ox + (Math.random() - .5) * 10, y: oy + (Math.random() - .5) * 10, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - (burst ? .4 : .25), r: 1 + Math.random() * (burst ? 2.4 : 2), t: 0,
+          life: (burst ? 600 : 420) + Math.random() * 380, c: ['#fcbf00', '#ffe27a', '#ffffff', '#ffd54a', '#a9bcff'][Math.random() * 5 | 0] }); } };
+    let prev = 0;
+    const tick = ts => { const dt = Math.min(40, ts - (prev || ts)); prev = ts;
+      if (drag) { const v = Math.abs(x - lastX); emit(1 + Math.min(4, v * .4 | 0), false); lastX = x; }
+      cx.setTransform(DPR, 0, 0, DPR, 0, 0); cx.clearRect(0, 0, cv.width, cv.height); cx.globalCompositeOperation = 'lighter';
+      parts = parts.filter(p => (p.t += dt) < p.life);
+      for (const p of parts) { const k = 1 - p.t / p.life; p.x += p.vx * dt / 16; p.y += p.vy * dt / 16; p.vx *= .985; p.vy = p.vy * .97;
+        const g = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3); g.addColorStop(0, '#ffffff'); g.addColorStop(.25, p.c); g.addColorStop(1, p.c + '00');
+        cx.globalAlpha = k * k; cx.fillStyle = g; cx.beginPath(); cx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2); cx.fill(); }
+      cx.globalAlpha = 1;
+      raf = drag || parts.length ? requestAnimationFrame(tick) : 0; if (!raf) prev = 0; };
+    const loop = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    const down = e => { if (done) return; drag = true; w.classList.add('sw-drag'); w.classList.remove('sw-back'); max = w.clientWidth - 36 - 28; size();
+      sx = e.clientX - x; lastX = x; knob.setPointerCapture && knob.setPointerCapture(e.pointerId); emit(5, false); loop(); e.preventDefault(); };
+    const move = e => { if (drag) set(e.clientX - sx); };
+    const up = () => { if (!drag) return; drag = false; w.classList.remove('sw-drag');
+      if (x >= max * .9) { done = true; w.classList.add('sw-done'); set(max); emit(30, true); loop(); w.setAttribute('aria-valuenow', 100);
+        setTimeout(() => btn.click(), 260); setTimeout(() => { if (w.isConnected) { done = false; w.classList.remove('sw-done'); w.classList.add('sw-back'); set(0); } }, 1200); }
+      else { w.classList.add('sw-back'); set(0); } };
+    knob.addEventListener('pointerdown', down); w.addEventListener('pointermove', move); w.addEventListener('pointerup', up); w.addEventListener('pointercancel', up);
+    knob.addEventListener('lostpointercapture', up);
+    w.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); } }); w.tabIndex = 0;
+  };
+  const swSync = () => { document.querySelectorAll('#coOv .co-place').forEach(b => {
+    const sw = b.previousElementSibling && b.previousElementSibling.classList.contains('co-swipe') ? b.previousElementSibling : null;
+    if (b.disabled) { if (sw) sw.remove(); b.classList.remove('sw-hidden'); }
+    else if (!sw) swMount(b); }); };
+  new MutationObserver(swSync).observe($('#coOv'), { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
   $('#coScroll').addEventListener('scroll', coMiniSync, { passive: true });
   $('#coScroll').addEventListener('scroll', coFootSync, { passive: true });
   // The docked strip's Delivery / Pick-up toggle drives the same switch as the in-page one
