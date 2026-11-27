@@ -41,11 +41,11 @@
     .hero-bg img{margin-top:-40px}
   }
   @property --chrome{syntax:"*";inherits:false}
-  html.app{--sat:env(safe-area-inset-top,0px);--sab:max(calc(env(safe-area-inset-bottom,0px) - 8px),6px);--navgap:0px;background:var(--app-bot,#fff);overscroll-behavior:none}
-  html.app body{display:block;background:var(--app-bot,#fff);overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  html.app{--sat:env(safe-area-inset-top,0px);--sab:max(calc(env(safe-area-inset-bottom,0px) - 8px),6px);--navgap:0px;background:#fff;overscroll-behavior:none}
+  html.app body{display:block;background:#fff;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   html.app *{-webkit-tap-highlight-color:transparent}
   html.app :is(input,textarea,[contenteditable]){-webkit-user-select:text;user-select:text}
-  html.app .phone{position:fixed;inset:0;width:auto;height:auto;border-radius:0;box-shadow:none}
+  html.app .phone{position:fixed;inset:0;width:auto;height:auto;border-radius:0;box-shadow:none;background:#fff}
   html.app :is(.proto-ctrl,.pc-active,.ios-sb,.home-ind i,.ind){display:none !important}
   html.app .phone #flList{min-height:calc(100dvh - var(--sat) - 110px)}
   html.app .phone :is(.header,.home-head){background-position:0 -40px;background-color:#0a2fe6}
@@ -2280,7 +2280,7 @@
   var f0 = window.fetch; window.fetch = function (u, o) { var k = typeof u === 'string' ? key(u) : null; return f0.call(this, k ? A[k] : u, o); };
   try {
     var here = location.href.split('#')[0].split('?')[0];
-    var mf = { name: 'SM Online', short_name: 'SM Online', start_url: here + '?source=pwa', scope: here, display: 'standalone', orientation: 'portrait', background_color: '#0a2fe6', theme_color: '#0a2fe6',
+    var mf = { name: 'SM Online', short_name: 'SM Online', start_url: here + '?source=pwa', scope: here, display: 'standalone', orientation: 'portrait', background_color: '#ffffff', theme_color: '#0a2fe6',
       icons: [{ src: A['icons/icon-192.png'], sizes: '192x192', type: 'image/png' }, { src: A['icons/icon-512.png'], sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] };
     if (/^https?:$/.test(location.protocol)) { var l = document.createElement('link'); l.rel = 'manifest'; l.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(mf)); document.head.appendChild(l); }
   } catch (e) {}
